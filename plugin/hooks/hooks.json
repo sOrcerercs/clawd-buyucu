@@ -1,0 +1,4 @@
+{
+  "description": "Clawd Büyücü hooks modülü",
+  "modules": ["./register.js"]
+}
