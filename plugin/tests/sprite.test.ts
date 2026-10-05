@@ -31,3 +31,13 @@ test('sahnenin istediği sprite adları var', async () => {
 test('beyazPalet tüm palet harflerini beyaz yapar', async () => {
   expect(beyazPalet(SPRITE.tnt)).toEqual({ R: RENK.beyaz, r: RENK.beyaz, B: RENK.beyaz })
 })
+
+test('lab eşyaları tanınır boyutta', async () => {
+  expect([SPRITE.kursu.gen, SPRITE.kursu.yuk]).toEqual([7, 7])
+  expect([SPRITE.kursu2.gen, SPRITE.kursu2.yuk]).toEqual([7, 7])
+  expect([SPRITE.kure.gen, SPRITE.kure.yuk]).toEqual([6, 7])
+  expect([SPRITE.kazan.gen, SPRITE.kazan.yuk]).toEqual([11, 6])
+  expect([SPRITE.sise.gen, SPRITE.sise.yuk]).toEqual([3, 4])
+  expect(SPRITE.kazan.satirlar.join('').includes('F')).toBe(true)
+  expect(OZEL_HARFLER.has('F')).toBe(true)
+})
