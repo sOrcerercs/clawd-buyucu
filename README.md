@@ -93,7 +93,7 @@ Yerel bir kopyadan kurmak için: `/plugin marketplace add ~/clawd-buyucu`.
 ```bash
 claude plugin test plugin                    # testler (oturumsuz)
 claude plugin validate plugin --strict       # doğrulama
-claude --plugin-dir ./plugin                 # bu oturumda yükle, kaydedince yenilenir
+claude --plugin-dir ./plugin                 # modla yeni oturum aç, kaydedince yenilenir
 node araclar/onizle.mjs bitti 120            # Claude'suz önizleme (terminalde)
 node araclar/ekran.mjs ekran                 # README görsellerini yeniden üret
 ```
