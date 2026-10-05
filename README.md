@@ -1,34 +1,77 @@
 # Clawd Büyücü
 
+![Clawd Büyücü: kazanda iksir, arazide canavar, dolabın önünde kutlama](ekran/kapak.png)
+
 Claude çalışırken istem satırının hemen üstünde küçük bir piksel Minecraft sahnesi açılır.
 Clawd'un elinde büyücü asası var. Düşünürken dışarıda canavarlara büyü atıp malzeme toplar.
-Okurken büyü kitabını çevirir. Düzenlerken kazanda iksir karıştırır ve her iksiri dolaba koyar.
+Okurken büyü kitabını çevirir. Düzenlerken kazanda iksir karıştırır ve her iksiri arkasındaki dolaba koyar.
+Dolap oturumlar arasında saklanır, yani Claude ne kadar iş çıkarırsa raflar o kadar dolar.
 
-| Claude ne yapıyor | Sahnede |
-|---|---|
-| Düşünüyor | Araziye yürür, zombi/iskelet/örümcek/slime'a büyü atar, kemik, mantar ve çiçek toplar |
-| Read / Grep / Glob | Kürsüdeki büyü kitabını çevirir — `README.md'yi okuyor` |
-| Edit / Write | Kazanı karıştırır, dosya türünün renginde bir şişe doldurup dolaba koyar |
-| WebFetch / WebSearch | Kristal küreye bakar — `kürede: github.com` |
-| Bash | Asadan kıvılcımla TNT'yi tutuşturur, kalkan açar, komut bitince patlar |
-| Agent | Portaldan çırak büyücü çıkar, işe katılır; ajan bitince geri döner |
-| Araç hata verdi | Creeper gelir, büyü tutukluk yapar, şapka uçar |
-| Tur bitti | Dolabın önünde asa havai fişeği; bu turun şişeleri parlar |
+Bu bir [Claude Code mod](https://code.claude.com/docs/en/plugins/mods/overview)'udur. LLM çağırmaz, ağ kullanmaz;
+arazi tohumlu ve deterministiktir.
 
-Uzaktaysa (8 bloktan fazla) Clawd laba ışınlanır. Toplanan malzeme bir sonraki iksiri parlatır.
-Dolap oturumlar arasında saklanır. Spinner'ın yanında sayaç görünür: `· ⚗ 7 iksir · ✦ 12`.
+## Claude ne yapıyorsa sahne ona döner
+
+| Claude | Sahnede | Balon |
+|---|---|---|
+| Düşünüyor | Araziye yürür; zombi, iskelet, örümcek ve slime'a büyü atar, düşen kemiği, mantarı, çiçeği toplar | `düşünüyor…` |
+| Read / Grep / Glob | Kürsüdeki büyü kitabının sayfalarını çevirir | `README.md'yi okuyor` |
+| Edit / Write | Kazanı karıştırır, dosya türünün renginde bir şişe doldurup dolaba koyar | `sahne.js'yi karıştırıyor` |
+| WebFetch / WebSearch | Kristal küreye bakar, kürede bulutlar döner | `kürede: github.com` |
+| Bash | Asadan kıvılcımla TNT'yi tutuşturur, kalkan açar; komut bitince TNT patlar | `npm test patlatıyor` |
+| Agent | Portaldan renkli şapkalı bir çırak çıkar ve işe katılır; ajan bitince geri döner | `çırak: testleri yaz` |
+| Araç hata verdi | Creeper gelir, büyü tutukluk yapar, Clawd savrulur, şapkası uçar | `Eyvah, büyü tutmadı!` |
+| Tur bitti | Dolabın önünde asadan havai fişek; bu turda eklenen şişeler sırayla parlar | `Bitti! 3 iksir hazır` |
+
+**Düşünürken:** canavar avı ve malzeme toplama
+
+![Düşünüyor](ekran/dusun.png)
+
+**Okurken:** büyü kitabı
+
+![Okuma](ekran/oku.png)
+
+**Düzenlerken:** kazanda iksir
+
+![İnşa](ekran/insa.png)
+
+**Bash:** fitil ve patlama
+
+![TNT fitili](ekran/fitil.png)
+![TNT patlaması](ekran/patlama.png)
+
+**Alt ajan:** portaldan çıraklar
+
+![Çıraklar](ekran/ajan.png)
+
+**Hata:** creeper
+
+![Creeper](ekran/creeper.png)
+
+**Tur bitti:** kutlama
+
+![Bitti](ekran/bitti.png)
+
+### Ayrıntılar
+
+- **Şişe renkleri** dosya türünden gelir: `.js`/`.ts` sarı, `.md` mavi, `.py` yeşil, `.json` turuncu, `.css`/`.html` pembe, diğerleri mor.
+- **Malzeme:** düşünürken toplananlar bir sonraki şişeyi parlatır; yeterince malzemeyle dolan şişe rafta pırıldar.
+- **Işınlanma:** Clawd laba 8 bloktan uzaktaysa yürümez, mor parçacıklarla ışınlanır.
+- **Reddedilen araç:** izin vermediğin bir çağrı ceza sayılmaz; iksir oluşmaz, TNT patlamadan söner.
+- **Sayaç:** spinner'ın yanında görünür, `· ⚗ 7 iksir · ✦ 12`.
+- **Dar terminal:** bant 90 sütundan darsa lab yalnız kazana iner. Desktop'ta sahne yerine tek satır metin gösterilir.
 
 ## Oyna
 
-Bandın altında `1: zıpla  2: ←  3: →  4: büyü  5: iksir` şeridi var. İstem boşken bir rakama bas;
-Clawd ~5 sn senin kontrolünde kalır. `5` dolaptan bir iksir içer ve kısa süreli etki verir:
-hız, yüksek zıplama ya da parlama.
+![Oyuncu kontrolü](ekran/oyna.png)
 
-LLM çağırmaz, ağ kullanmaz; arazi tohumlu ve deterministiktir.
+Bandın altında `1: zıpla  2: ←  3: →  4: büyü  5: iksir` şeridi var. İstem boşken bir rakama basarsan
+Clawd ~5 saniye senin kontrolünde kalır. `4` baktığı yöne büyü atar. `5` dolaptan bir iksir içer ve kısa süreli
+bir etki verir: hız, yüksek zıplama ya da parlama. İçilen iksir dolaptan ve sayaçtan düşer.
 
 ## Kurulum
 
-Claude Code **2.1.287** ya da üstü gerekir (`claude update`).
+Claude Code **2.1.287** ya da üstü gerekir (`claude update`). Claude Code'un içinde:
 
 ```
 /plugin marketplace add sOrcerercs/clawd-buyucu
@@ -37,17 +80,20 @@ Claude Code **2.1.287** ya da üstü gerekir (`claude update`).
 
 Yerel bir kopyadan kurmak için: `/plugin marketplace add ~/clawd-buyucu`.
 
-`/buyucu` modu açıp kapatır (tercih saklanır, varsayılan açık). Terminalde `Raster` ile çizilir;
-Desktop'ta tek satır metin gösterir. Bant 90 sütundan darsa lab yalnız kazana iner.
+`/buyucu` modu açıp kapatır (tercih saklanır, varsayılan açık).
 
 ## Geliştirme
 
 ```bash
-claude plugin test plugin                    # testler
+claude plugin test plugin                    # testler (oturumsuz)
 claude plugin validate plugin --strict       # doğrulama
-node araclar/onizle.mjs bitti 120            # Claude'suz önizleme
 claude --plugin-dir ./plugin                 # bu oturumda yükle, kaydedince yenilenir
+node araclar/onizle.mjs bitti 120            # Claude'suz önizleme (terminalde)
+node araclar/ekran.mjs ekran                 # README görsellerini yeniden üret
 ```
 
+`plugin/hooks/register.js` mods API'sini kullanan tek dosyadır. Sahne (`sahne.js`), çizim (`cizim.js`) ve
+diğer modüller saf fonksiyonlardır. Tasarım ve plan `docs/superpowers/` altında.
+
 Claude Code 2.1.289 ile test edildi.
-[clawd-madenci](https://github.com/selmakcby/clawd-madenci)'den esinlenildi; kod paylaşılmaz.
+[clawd-madenci](https://github.com/selmakcby/clawd-madenci)'den esinlenildi; kod paylaşılmaz, her şey sıfırdan yazıldı.
