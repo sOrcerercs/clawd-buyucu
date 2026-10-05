@@ -103,3 +103,7 @@ diğer modüller saf fonksiyonlardır.
 
 Claude Code 2.1.289 ile test edildi.
 [clawd-madenci](https://github.com/selmakcby/clawd-madenci)'den esinlenildi; kod paylaşılmaz, her şey sıfırdan yazıldı.
+
+## Lisans
+
+[MIT](LICENSE). Anthropic veya Mojang ile resmî bir bağı yoktur; Claude, Clawd ve Minecraft sahiplerinin markalarıdır.
