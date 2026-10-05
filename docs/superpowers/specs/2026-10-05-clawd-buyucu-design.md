@@ -29,8 +29,8 @@ referansıdır.
 
 Minecraft estetiği: çimen/toprak/taş arazi, iksir standı, kazan, zombi, iskelet, örümcek, slime, creeper.
 
-Tek şerit. Bandın **sol ucunda sabit lab** (~12 blok): soldan sağa dolap, büyü kitabı kürsüsü + kristal
-küre, kazan. Lab'ın sağında açık arazi.
+Tek şerit. Bandın **sol ucunda sabit lab** (59 piksel ≈ 15 blok; Raster'da 1 sütun = 1 piksel): soldan sağa
+dolap, büyü kitabı kürsüsü, kristal küre, kazan. Lab'ın sağında açık arazi.
 
 **Lab'a dönüş kuralı:** lab'da geçen bir durum (okuma, inşa, web) geldiğinde Clawd dışarıdaysa:
 lab'a ≤ 8 blok uzaktaysa yürür, daha uzaktaysa mor parçacıklarla lab'a ışınlanır.
@@ -119,7 +119,8 @@ canavarlar, mermiler, parçacıklar, çıraklar, TNT, oyuncu kontrol süresi, de
 ## Hata ve uç durumlar
 
 - `blit` reddedilir/hata verirse `$.ui.invalidate('ui.render')`.
-- Bant 20 sütundan darsa lab tek bloğa (kazan) iner; dolap gizlenir, sayaç spinner'da kalır.
+- Bant 90 sütundan darsa lab yalnız kazana iner; dolap, kürsü ve küre gizlenir, şişe doğrudan sayaca eklenir,
+  sayaç spinner'da kalır.
 - Desktop (Raster yok): `🧙 Clawd: <balon> · ⚗ <n>` tek satır.
 - Üst üste turlar: kapanış zamanlayıcısı iptal edilir.
 - Store okunamazsa dolap boş başlar, mod açık varsayılır.
