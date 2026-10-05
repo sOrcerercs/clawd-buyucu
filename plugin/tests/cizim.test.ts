@@ -104,11 +104,11 @@ test('kullanılan eşya parlar, diğerleri sönükleşir', async () => {
   const lab = labYerlesimi(120)
   const oku = { ...olayUygula(yeniSahne(120), { tip: 'eylem', tur: 'oku', metin: 'x' }), kare: 0 }
   const h = sahneHucreleri(oku, 120, 10)
-  expect(piksel(h, 120, 10, lab.kursuX + 1, YER - 8)).toBe(RENK.hale)
+  expect(piksel(h, 120, 10, lab.kursuX + 1, YER - 9)).toBe(RENK.hale)
   expect(piksel(h, 120, 10, lab.kazanX, YER - 6) === RENK.kazanAgiz).toBe(false)
   const bos = sahneHucreleri({ ...yeniSahne(120), kare: 0 }, 120, 10)
   expect(piksel(bos, 120, 10, lab.kazanX, YER - 6)).toBe(RENK.kazanAgiz)
-  expect(piksel(bos, 120, 10, lab.kursuX + 1, YER - 8) === RENK.hale).toBe(false)
+  expect(piksel(bos, 120, 10, lab.kursuX + 1, YER - 9) === RENK.hale).toBe(false)
 })
 
 test('kazanın altında ateş yanar', async () => {

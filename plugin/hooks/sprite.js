@@ -30,7 +30,9 @@ const KURSU = { P: RENK.sayfa, p: RENK.sayfaKoyu, k: RENK.kitap, W: RENK.tahta, 
 
 export const SPRITE = {
   // Clawd sağa bakar; sola bakarken aynalanır. Gövde 5 satır + ayak 1 satır.
-  clawd: P(['.OOOOO.', 'OOKOOKO', 'OOKOOKO', 'OOOOOOO', 'oOOOOOo'], TURUNCU),
+  // Gözler 2. ve 3. satırda: gövde çift satırdan başladığı için ikisi aynı terminal hücresine düşer;
+  // hücre sınırına denk gelseler satır arası boşluk her gözü ikiye böler (dört göz görünür).
+  clawd: P(['.OOOOO.', 'OOOOOOO', 'OOKOOKO', 'OOKOOKO', 'oOOOOOo'], TURUNCU),
   ayakA: P(['o.o.o.o'], TURUNCU),
   ayakB: P(['.o.o.o.'], TURUNCU),
   sapka: P(['....S....', '...SYS...', '..SSSSS..', 'sssssssss'], { S: RENK.mor, s: RENK.morKoyu, Y: RENK.yildiz }),
@@ -41,10 +43,11 @@ export const SPRITE = {
   // Kazan: açık ağız, renkli sıvı (L), bacakların arasında titreyen ateş (F)
   kazan: P(['aaaaaaaaaaa', 'aLLLLLLLLLa', 'kKKKKKKKKKk', 'kKKKKKKKKKk', '.kKKKKKKKk.', '.k.FFFFF.k.'], { a: RENK.kazanAgiz, k: RENK.kazan, K: RENK.kazanKoyu }),
   // Kürsü: ahşap ayak üstünde açık kitap; beyaz sayfalarda yazı satırları, ortada kırmızı sırt
-  kursu: P(['PpPkPpP', 'pPPkPPp', 'WWWWWWW', '.wWWWw.', '..wWw..', '..wWw..', '.WWWWW.'], KURSU),
-  kursu2: P(['pPpkpPp', 'PpPkPpP', 'WWWWWWW', '.wWWWw.', '..wWw..', '..wWw..', '.WWWWW.'], KURSU),
+  // Yükseklik çift: tepesi çift satıra düşer, kitap tek terminal hücresinde kalır
+  kursu: P(['PpPkPpP', 'pPPkPPp', 'WWWWWWW', '.wWWWw.', '..wWw..', '..wWw..', '..wWw..', '.WWWWW.'], KURSU),
+  kursu2: P(['pPpkpPp', 'PpPkPpP', 'WWWWWWW', '.wWWWw.', '..wWw..', '..wWw..', '..wWw..', '.WWWWW.'], KURSU),
   // Küre: altın ayak üstünde cam; içi (C) değişir, beyaz parlama noktası
-  kure: P(['.cccc.', 'cChCCc', 'cCCCCc', '.cccc.', '..GG..', '.GggG.', 'GGGGGG'], { c: RENK.kureKenar, h: RENK.beyaz, G: RENK.altin, g: RENK.altinKoyu }),
+  kure: P(['.cccc.', 'cChCCc', 'cCCCCc', '.cccc.', '..GG..', '..GG..', '.GggG.', 'GGGGGG'], { c: RENK.kureKenar, h: RENK.beyaz, G: RENK.altin, g: RENK.altinKoyu }),
   // Şişe: mantar, boyun, camda parıltı pikseli
   sise: P(['.q.', '.L.', 'HLL', 'LLL'], { q: RENK.tahta, H: RENK.beyaz }),
   tnt: P(['RrRr', 'BBBB', 'RrRr', 'rRrR'], { R: RENK.tnt, r: RENK.tntKoyu, B: RENK.beyaz }),

@@ -256,7 +256,7 @@ function okuAdim(s) {
   if (s.modKare % 4 !== 0) return s
   const lab = labYerlesimi(s.genislik)
   // Dar bantta kürsü yok: dolaptaki tariflere bakar
-  const [x, y] = lab.kursuX === null ? [lab.dolapX + 10, YER - 9] : [lab.kursuX + 3, YER - 8]
+  const [x, y] = lab.kursuX === null ? [lab.dolapX + 10, YER - 9] : [lab.kursuX + 3, YER - 9]
   return { ...s, parca: yukselen(s.parca, s.kare, x, y, RENK.sayfa) }
 }
 
