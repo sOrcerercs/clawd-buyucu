@@ -99,7 +99,7 @@ node araclar/ekran.mjs ekran                 # README görsellerini yeniden üre
 ```
 
 `plugin/hooks/register.js` mods API'sini kullanan tek dosyadır. Sahne (`sahne.js`), çizim (`cizim.js`) ve
-diğer modüller saf fonksiyonlardır. Tasarım ve plan `docs/superpowers/` altında.
+diğer modüller saf fonksiyonlardır.
 
 Claude Code 2.1.289 ile test edildi.
 [clawd-madenci](https://github.com/selmakcby/clawd-madenci)'den esinlenildi; kod paylaşılmaz, her şey sıfırdan yazıldı.

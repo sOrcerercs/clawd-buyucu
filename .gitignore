@@ -3,3 +3,4 @@ node_modules/
 .superpowers/
 plugin/.claude-plugin/types/
 plugin/tsconfig.json
+docs/superpowers/
