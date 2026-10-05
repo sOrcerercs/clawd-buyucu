@@ -116,7 +116,7 @@ function dolapCiz(t, s, lab, sonuk, hale) {
     }
   }
   dikdortgen(t, x0, 3, gen, 11, RENK.duvarKoyu)
-  for (const y of [3, 8, 13]) dikdortgen(t, x0, y, gen, 1, ahsap(RENK.tahta))
+  for (const y of [3, 8, 9]) dikdortgen(t, x0, y, gen, 1, ahsap(RENK.tahta))
   dikdortgen(t, x0, 3, 1, 11, ahsap(RENK.tahtaKoyu))
   dikdortgen(t, x0 + gen - 1, 3, 1, 11, ahsap(RENK.tahtaKoyu))
   const siseler = gorunenSiseler(s.dolap)
@@ -145,12 +145,12 @@ function labCiz(t, s, lab) {
     spriteCiz(t, sp, x, y, false, ozel, sonukMu(ad) ? sonuk : null)
   }
   dolapCiz(t, s, lab, sonukMu('dolap'), aktif === 'dolap' && hale)
-  if (lab.kursuX !== null) esya('kursu', s.mod === 'oku' && s.kare % 12 < 6 ? SPRITE.kursu2 : SPRITE.kursu, lab.kursuX, YER - 7, {})
+  if (lab.kursuX !== null) esya('kursu', s.mod === 'oku' && s.kare % 12 < 6 ? SPRITE.kursu2 : SPRITE.kursu, lab.kursuX, YER - SPRITE.kursu.yuk, {})
   if (lab.kureX !== null) {
     const ic = s.mod === 'web' ? [RENK.beyaz, RENK.kureIc, RENK.portalAcik][Math.floor(s.kare / 3) % 3] : RENK.kureIc
-    esya('kure', SPRITE.kure, lab.kureX, YER - 7, { C: ic })
+    esya('kure', SPRITE.kure, lab.kureX, YER - SPRITE.kure.yuk, { C: ic })
   }
-  esya('kazan', SPRITE.kazan, lab.kazanX, YER - 6, { L: s.kazanRengi ?? RENK.iksir, F: s.kare % 4 < 2 ? RENK.alev : RENK.kivilcim })
+  esya('kazan', SPRITE.kazan, lab.kazanX, YER - SPRITE.kazan.yuk, { L: s.kazanRengi ?? RENK.iksir, F: s.kare % 4 < 2 ? RENK.alev : RENK.kivilcim })
 }
 
 // ---- Varlıklar ----

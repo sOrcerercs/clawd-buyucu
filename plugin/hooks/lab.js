@@ -61,11 +61,12 @@ export function gorunenSiseler(dolap) {
   return dolap.slice(atla)
 }
 
-// Dolaptaki i. şişenin sol üst pikseli; şişe 3×4, aralarında 1 piksel; raf tahtaları y = 3, 8, 13
+// Dolaptaki i. şişenin sol üst pikseli; şişe 3×4, aralarında 1 piksel. Raflar y = 4 ve 10'dan başlar
+// (çift satır: terminal satır boşluğu şişeyi bölmez); aradaki tahta y = 8–9, alt raf zemine oturur
 export function sisePikseli(lab, i) {
   const raf = Math.floor(i / RAF_KAPASITE)
   const sira = i % RAF_KAPASITE
-  return { x: lab.dolapX + 1 + sira * 4, y: 4 + raf * 5 }
+  return { x: lab.dolapX + 1 + sira * 4, y: 4 + raf * 6 }
 }
 
 function gecerliSise(s) {

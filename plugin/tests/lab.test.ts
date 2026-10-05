@@ -60,7 +60,7 @@ test('dolap 24 şişe saklar, raflar dolunca en eski raf kayar', async () => {
   expect(gorunenSiseler(siseler(11))[0]).toEqual(sise(5))
   const lab = labYerlesimi(120)
   expect(sisePikseli(lab, 0)).toEqual({ x: 2, y: 4 })
-  expect(sisePikseli(lab, 6)).toEqual({ x: 6, y: 9 })
+  expect(sisePikseli(lab, 6)).toEqual({ x: 6, y: 10 })
 })
 
 test('dolapOku bozuk veriyi ayıklar', async () => {
@@ -71,4 +71,9 @@ test('dolapOku bozuk veriyi ayıklar', async () => {
   expect(dolapOku(ham)).toEqual({ sayi: 2, siseler: [sise(), sise(7)] })
   expect(dolapOku({ sayi: 40, siseler: siseler(30) }).siseler.length).toBe(24)
   expect(dolapKaydi(40, siseler(30))).toEqual({ sayi: 40, siseler: siseler(30).slice(-24) })
+})
+
+test('şişeler çift satırdan başlar: terminal satır boşluğu şişeyi bölmez', async () => {
+  const lab = labYerlesimi(120)
+  for (let i = 0; i < 10; i++) expect(sisePikseli(lab, i).y % 2).toBe(0)
 })
