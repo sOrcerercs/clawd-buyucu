@@ -1,0 +1,12 @@
+{
+  "name": "clawd-buyucu",
+  "owner": { "name": "Kağan Öztürk" },
+  "metadata": { "description": "Clawd Büyücü: Claude Code için piksel büyücü modu" },
+  "plugins": [
+    {
+      "name": "clawd-buyucu",
+      "source": "./plugin",
+      "description": "Claude çalışırken istemin üstünde piksel Minecraft sahnesi: büyücü Clawd iksir karıştırır, dolaba dizer, canavarlara büyü atar"
+    }
+  ]
+}
