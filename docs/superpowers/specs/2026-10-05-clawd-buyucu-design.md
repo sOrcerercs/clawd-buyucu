@@ -103,14 +103,15 @@ Olay → `olay.js` çeviri → `sahne.olayUygula` → yeni durum. Ayrıca `$.clo
 | Claude Code olayı | Sahne olayı |
 |---|---|
 | tur başladı (ana ajan) | bant açılır, `basla` |
-| araç başlayacak (PreToolUse) | `eylem` (okuma / inşa / web / tnt / ajan / diğer) |
-| araç bitti (PostToolUse) | `eylemBitti` → patlama, şişe dolaba, çırak gider |
-| araç hata (PostToolUseFailure veya is_error) | `hata` → creeper |
+| `tool.call` başı | `eylem` (okuma / inşa / web / tnt / ajan / diğer) |
+| `tool.call` sonucu | `eylemBitti` → patlama, şişe dolaba, çırak gider |
+| sonuç `isError` | `hata` → creeper |
+| sonuç `deny` (reddedildi) | `iptal` → iksir yok, TNT patlamadan söner, çırak döner |
 | tur tamamlandı (ana ajan) | `bitti`, 2 sn sonra bant gizlenir |
 | 1–5 düğmeleri | `oyuncu` |
 
-Araç olayları, `tool.call` içinde beklemek yerine gözlemci hook'larla dinlenir; uzun bir Bash boyunca
-saat ve düğmeler donmamalı (uygulamada doğru olay adı dokümandan seçilir). Alt ajanların kendi tur
+Araç olayları tek bir `tool.call` gözlemcisiyle dinlenir: başta `eylem`, `await next(e)` sonucunda bitiş.
+`next` içindeki süre hook süresine sayılmaz ve saati durdurmaz. Alt ajanların kendi tur
 olayları bandı açıp kapatmaz.
 
 **Durum** içeriği: mod, modKare, kare, Clawd konumu/yönü/hızı, balon, dolap şişeleri, malzeme sayacı,

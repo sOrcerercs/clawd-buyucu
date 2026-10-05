@@ -3,7 +3,7 @@
 
 import { yeniSahne, adim, olayUygula } from './sahne.js'
 import { sahneHucreleri, base64 } from './cizim.js'
-import { eylemOku, hataMi } from './olay.js'
+import { eylemOku } from './olay.js'
 import { dolapOku, dolapKaydi } from './lab.js'
 
 const KARE_MS = 90 // ~11 fps
@@ -103,9 +103,11 @@ function gizle($) {
   $.ui.invalidate('ui.render')
 }
 
-function aracBitti(e, hata) {
+function aracBitti(e, sonuc) {
   const { tur, uzanti } = eylemOku(e)
-  olayEkle(hata ? { tip: 'hata', tur } : { tip: 'eylemBitti', tur, uzanti })
+  if (sonuc?.deny) olayEkle({ tip: 'iptal', tur })
+  else if (sonuc?.isError) olayEkle({ tip: 'hata', tur })
+  else olayEkle({ tip: 'eylemBitti', tur, uzanti })
 }
 
 function bantCiz($, e) {
@@ -166,21 +168,13 @@ export function register(on) {
     return next(e)
   })
 
-  // tool.call yerine settings hook kopyaları: tool.call içinde next'i beklemek uzun bir Bash boyunca
-  // saati ve düğmeleri durdurur
-  on('classic.PreToolUse', async ($, e, next) => {
+  // Araç başlangıcı ve sonu tek gözlemcide: next'i beklemek saati durdurmaz ve hook süresine sayılmaz.
+  // Reddedilen çağrı { deny } (iptal), başarısız çağrı isError (creeper) ile döner.
+  on('tool.call', async ($, e, next) => {
     if (gorunur) olayEkle({ tip: 'eylem', ...eylemOku(e) })
-    return next(e)
-  })
-
-  on('classic.PostToolUse', async ($, e, next) => {
-    if (gorunur) aracBitti(e, hataMi(e))
-    return next(e)
-  })
-
-  on('classic.PostToolUseFailure', async ($, e, next) => {
-    if (gorunur) aracBitti(e, true)
-    return next(e)
+    const sonuc = await next(e)
+    if (gorunur) aracBitti(e, sonuc)
+    return sonuc
   })
 
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {

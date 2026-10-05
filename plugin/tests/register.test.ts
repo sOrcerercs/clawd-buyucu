@@ -54,7 +54,11 @@ function hazirla(on: any, secenek: { depo?: Map<string, unknown>, render?: (e: a
   on('session.start', () => ({ cwd: '/work' }))
   on('turn.start', ($: any, e: any) => ({ turnId: e.turnId }))
   on('turn.complete', () => ({ text: '' }))
-  on('tool.call', () => ({ result: 'tamam' }))
+  on('tool.call', ($: any, e: any) => {
+    if (String(e.file_path ?? '').includes('reddet')) return { deny: 'kullanıcı reddetti' }
+    if (String(e.file_path ?? '').includes('bozuk')) return { result: 'hata', isError: true }
+    return { result: 'tamam' }
+  })
   on('classic.PostToolUse', () => ({}))
   on('classic.PostToolUseFailure', () => ({}))
   on('ui.render', ($: any, e: any) => {
@@ -122,7 +126,6 @@ test('düzenleme bitince iksir store\'a yazılır, spinner sayacı gösterir', a
   await $.turn.start({ turnId: 't1' })
   const girdi = { file_path: '/w/sahne.js' }
   await $.tool.call({ tool: 'Edit', ...girdi })
-  await $.classic.PostToolUse({ hook_event_name: 'PostToolUse', tool_name: 'Edit', tool_input: girdi, tool_response: { success: true } })
   await saat.advance(90 * 12)
   await saat.advance(90)
   expect(depo.get('dolap')).toEqual({ sayi: 1, siseler: [{ renk: 0xf2c12e, parlak: 0 }] })
@@ -180,4 +183,25 @@ test('oyna düğmesi Clawd\'u oyuncuya verir', async ($, on) => {
   const desktop = await $.ui.mount({ ...BANT, surface: 'desktop' })
   expect(await desktop.find({ type: 'Text', text: /Kontrol sende!/ })).toBeDefined()
   await desktop.unmount()
+})
+
+test('reddedilen araç sahneyi o modda bırakmaz', async ($, on) => {
+  const { saat } = hazirla(on)
+  await oturumAc($)
+  await $.turn.start({ turnId: 't1' })
+  await $.tool.call({ tool: 'Edit', file_path: '/w/reddet.js' })
+  await saat.advance(90 * 30)
+  const ui = await $.ui.mount({ ...BANT, surface: 'desktop' })
+  expect(await ui.find({ type: 'Text', text: /düşünüyor…/ })).toBeDefined()
+  await ui.unmount()
+})
+
+test('hata döndüren araç creeper getirir', async ($, on) => {
+  hazirla(on)
+  await oturumAc($)
+  await $.turn.start({ turnId: 't1' })
+  await $.tool.call({ tool: 'Edit', file_path: '/w/bozuk.js' })
+  const ui = await $.ui.mount({ ...BANT, surface: 'desktop' })
+  expect(await ui.find({ type: 'Text', text: /Eyvah, büyü tutmadı!/ })).toBeDefined()
+  await ui.unmount()
 })

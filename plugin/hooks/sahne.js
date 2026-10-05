@@ -26,7 +26,7 @@ const HAVAI = [RENK.yildiz, RENK.portalAcik, RENK.kure, RENK.tnt, RENK.cim]
 const BLOK_PARCA = { tas: [RENK.tas, RENK.tasKoyu], kutuk: [RENK.tahta, RENK.tahtaKoyu], yaprak: [RENK.cim, RENK.cimKoyu] }
 const LAB_MODLARI = new Set(['oku', 'web', 'insa'])
 const OYNANIR = new Set(['dusun', 'oku', 'web', 'insa', 'git'])
-const KUYRUKLANAN = new Set(['eylem', 'eylemBitti', 'hata'])
+const KUYRUKLANAN = new Set(['eylem', 'eylemBitti', 'hata', 'iptal'])
 
 export function yeniSahne(genislik = 120, tohum = 7) {
   const { bloklar, esyalar } = araziUret(genislik, tohum)
@@ -56,6 +56,7 @@ export function olayUygula(s, olay) {
   if (olay.tip === 'eylem') return eylemBaslat(dolabaBirak(s), olay)
   if (olay.tip === 'eylemBitti') return eylemBitir(s, olay)
   if (olay.tip === 'hata') return hataBaslat(s, olay)
+  if (olay.tip === 'iptal') return iptalEt(s, olay)
   return s
 }
 
@@ -79,6 +80,19 @@ function eylemBitir(s, { tur, uzanti }) {
   if (tur === 'tnt') return tntBitti(t)
   if (tur === 'ajan') return cirakGonder(t)
   return t
+}
+
+// Reddedilen araç: ürün yok, ceza yok; TNT patlamadan söner, çırak geri döner
+function iptalEt(s, { tur }) {
+  const t = { ...s, dusunAt: s.balonKare + BALON_EN_AZ }
+  if (tur === 'insa') return { ...t, kazanRengi: null }
+  if (tur === 'ajan') return cirakGonder(t)
+  if (tur !== 'tnt' || !t.tnt) return t
+  const fitilde = t.mod === 'fitil'
+  return {
+    ...t, tnt: null, parca: parcaSac(t.parca, t.kare, t.tnt.x + 2, YER - 4, () => RENK.duman, 6, 0.5),
+    mod: fitilde ? 'dusun' : t.mod, modKare: fitilde ? 0 : t.modKare,
+  }
 }
 
 // ---- Lab ----
@@ -122,7 +136,8 @@ function tntKur(s) {
 
 function tntBitti(s) {
   if (!s.tnt) return s
-  if (s.mod === 'fitil' && s.modKare < FITIL_EN_AZ) return { ...s, tnt: { ...s.tnt, patlaAt: FITIL_EN_AZ } }
+  // Kısa komutta fitil en az FITIL_EN_AZ kare yanar; patlama TNT'nin kendi saatine bağlı, moda değil
+  if (s.tnt.kare < FITIL_EN_AZ) return { ...s, tnt: { ...s.tnt, patlaAt: FITIL_EN_AZ } }
   return patlat(s)
 }
 
@@ -186,6 +201,8 @@ function bitir(s) {
   const yerde = t.x === d.x ? t : isinla(t, d.x, 'bitti')
   return {
     ...yerde, mod: 'bitti', modKare: 0, yon: 1, hedef: null, creeper: null, sapka: null, kuyruk: [],
+    // Tur bitince ön plandaki ajanlar da bitmiştir; Post'u gelmeyen çırak kalmasın
+    ciraklar: yerde.ciraklar.map((c) => (c.durum === 'cikis' ? c : { ...c, durum: 'cikis', kare: 0 })),
     oyuncu: 0, yuruKalan: 0, zy: 0, vy: 0, kazanRengi: null,
     balon: bittiMetni(yerde.buTur), balonKare: yerde.kare, dusunAt: null,
   }
@@ -263,7 +280,6 @@ function dolapAdim(s) {
 
 function fitilAdim(s) {
   if (!s.tnt) return { ...s, mod: 'dusun', modKare: 0 }
-  if (s.tnt.patlaAt !== null && s.modKare >= s.tnt.patlaAt) return patlat(s)
   if (s.modKare === 1) return { ...s, parca: parcaSac(s.parca, s.kare, asaUcuX(s), YER - 7, () => RENK.kivilcim, 4, 0.8) }
   if (s.modKare === 2) return { ...s, parca: parcaSac(s.parca, s.kare, s.tnt.x + 2, YER - 4, () => RENK.kivilcim, 6, 1) }
   const uzaklik = Math.abs(s.x + CLAWD_GEN / 2 - (s.tnt.x + 2))
@@ -400,8 +416,9 @@ export function adim(s) {
     esyalar: bitkiYenile(s.esyalar, s.genislik, kare, s.tohum).slice(-ESYA_SINIR),
     bloklar: bloklarYenile(s.bloklar, kare),
   }
-  const oynuyor = temel.oyuncu > 0 && OYNANIR.has(temel.mod)
-  let t = oynuyor ? oyuncuAdim(temel) : (MOD_ADIMI[temel.mod] ?? dusunAdim)(temel)
+  const hazir = temel.tnt && temel.tnt.patlaAt !== null && temel.tnt.kare >= temel.tnt.patlaAt ? patlat(temel) : temel
+  const oynuyor = hazir.oyuncu > 0 && OYNANIR.has(hazir.mod)
+  let t = oynuyor ? oyuncuAdim(hazir) : (MOD_ADIMI[hazir.mod] ?? dusunAdim)(hazir)
   t = ciraklarAdim(canavarlarAdim(t))
   t = sapkaAdim(yerCekimi(t))
   if (t.mod === 'dusun') t = esyaTopla(t)

@@ -100,3 +100,34 @@ test('Claude bir iş başlatınca oyuncu kontrolü biter', async () => {
   s = olayUygula(s, eylem('oku'))
   expect(s.oyuncu).toBe(0)
 })
+
+test('hızlı Bash\'in TNT\'si mod değişse de kendi saatinde patlar', async () => {
+  let s = olayUygula(yeniSahne(160), eylem('tnt'))
+  s = adim(s)
+  s = olayUygula(s, bitti('tnt'))
+  s = olayUygula(s, eylem('oku'))
+  s = ilerle(s, FITIL_EN_AZ + 1)
+  expect(s.tnt).toBe(null)
+  s = olayUygula(s, eylem('tnt'))
+  expect(s.mod).toBe('fitil')
+})
+
+test('tur bitince Post\'u gelmeyen çıraklar da portala döner', async () => {
+  const s = olayUygula(olayUygula(yeniSahne(160), eylem('ajan')), { tip: 'bitti' })
+  expect(s.ciraklar.every((c: any) => c.durum === 'cikis')).toBe(true)
+})
+
+test('reddedilen araç iksir ya da patlama üretmeden düşünmeye döner', async () => {
+  let s = olayUygula(olayUygula(yeniSahne(160), eylem('insa', 'x', 'js')), { tip: 'iptal', tur: 'insa' })
+  expect(s.tasinan).toBe(null)
+  expect(s.kazanRengi).toBe(null)
+  s = ilerle(s, 23)
+  expect(s.mod).toBe('dusun')
+  expect(s.dolap).toEqual([])
+  const t = olayUygula(olayUygula(yeniSahne(160), eylem('tnt')), { tip: 'iptal', tur: 'tnt' })
+  expect(t.tnt).toBe(null)
+  expect(t.patlama).toBe(null)
+  expect(t.mod).toBe('dusun')
+  const a = olayUygula(olayUygula(yeniSahne(160), eylem('ajan')), { tip: 'iptal', tur: 'ajan' })
+  expect(a.ciraklar[0].durum).toBe('cikis')
+})
