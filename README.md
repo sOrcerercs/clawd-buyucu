@@ -31,9 +31,11 @@ LLM çağırmaz, ağ kullanmaz; arazi tohumlu ve deterministiktir.
 Claude Code **2.1.287** ya da üstü gerekir (`claude update`).
 
 ```
-/plugin marketplace add ~/clawd-buyucu
+/plugin marketplace add sOrcerercs/clawd-buyucu
 /plugin install clawd-buyucu@clawd-buyucu
 ```
+
+Yerel bir kopyadan kurmak için: `/plugin marketplace add ~/clawd-buyucu`.
 
 `/buyucu` modu açıp kapatır (tercih saklanır, varsayılan açık). Terminalde `Raster` ile çizilir;
 Desktop'ta tek satır metin gösterir. Bant 90 sütundan darsa lab yalnız kazana iner.
