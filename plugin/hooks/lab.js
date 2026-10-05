@@ -4,20 +4,21 @@
 import { RENK } from './sprite.js'
 
 export const CLAWD_GEN = 7
-export const DAR_ESIK = 90
+export const DAR_ESIK = 110
 
-// Soldan sağa: dolap | Clawd'un okuma durağı | kürsü | web durağı | küre | inşa durağı | kazan
-const GENIS = { dolapX: 1, dolapGen: 14, okuX: 16, kursuX: 23, webX: 29, kureX: 36, insaX: 41, kazanX: 48, son: 59 }
-// Dar bantta yalnız kazan kalır; her iş kazanın başında yapılır
-const DAR = { dolapX: null, dolapGen: 0, okuX: 1, kursuX: null, webX: 1, kureX: null, insaX: 1, kazanX: 8, son: 19 }
+// Soldan sağa: dolap | Clawd'un okuma durağı | kürsü | web durağı | küre | inşa durağı | kazan.
+// Clawd eşyanın solunda durur; asasının ucu eşyaya bir piksel kala biter, eşyayı örtmez.
+const GENIS = { dolapX: 1, dolapGen: 21, okuX: 23, kursuX: 32, webX: 40, kureX: 49, insaX: 56, kazanX: 65, son: 77 }
+// Dar bantta dolap ve kazan kalır; okuma ve web dolabın önünde yapılır
+const DAR = { dolapX: 1, dolapGen: 21, okuX: 23, kursuX: null, webX: 23, kureX: null, insaX: 23, kazanX: 32, son: 45 }
 
 export function labYerlesimi(genislik) {
   return genislik < DAR_ESIK ? DAR : GENIS
 }
 
 export function durak(lab, tur) {
-  if (tur === 'oku') return { x: lab.okuX, yon: 1 }
-  if (tur === 'web') return { x: lab.webX, yon: 1 }
+  if (tur === 'oku') return { x: lab.okuX, yon: lab.kursuX === null ? -1 : 1 }
+  if (tur === 'web') return { x: lab.webX, yon: lab.kureX === null ? -1 : 1 }
   if (tur === 'insa') return { x: lab.insaX, yon: 1 }
   if (tur === 'dolap') return { x: lab.okuX, yon: -1 }
   return { x: lab.son + 1, yon: 1 }
@@ -45,8 +46,8 @@ export function yeniSise(uz, malzeme) {
 
 // ---- Dolap ----
 export const DOLAP_SAKLA = 24
-export const RAF_SAYISI = 3
-export const RAF_KAPASITE = 4
+export const RAF_SAYISI = 2
+export const RAF_KAPASITE = 5
 
 export function dolabaEkle(dolap, sise) {
   return [...dolap, sise].slice(-DOLAP_SAKLA)
@@ -60,11 +61,11 @@ export function gorunenSiseler(dolap) {
   return dolap.slice(atla)
 }
 
-// Dolaptaki i. şişenin sol üst pikseli; şişe 3×3, raf tahtaları y = 1, 5, 9, 13
+// Dolaptaki i. şişenin sol üst pikseli; şişe 3×4, aralarında 1 piksel; raf tahtaları y = 3, 8, 13
 export function sisePikseli(lab, i) {
   const raf = Math.floor(i / RAF_KAPASITE)
   const sira = i % RAF_KAPASITE
-  return { x: lab.dolapX + 1 + sira * 3, y: 2 + raf * 4 }
+  return { x: lab.dolapX + 1 + sira * 4, y: 4 + raf * 5 }
 }
 
 function gecerliSise(s) {

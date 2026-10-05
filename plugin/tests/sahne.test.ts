@@ -9,21 +9,21 @@ const zombi = (x: number) => ({ tur: 'zombi', x, zy: 0, vy: 0, can: 3, kare: 0, 
 test('yeni sahne labın hemen dışında düşünerek başlar', async () => {
   const s = yeniSahne(160)
   expect(s.mod).toBe('dusun')
-  expect(s.x).toBe(60)
+  expect(s.x).toBe(78)
   expect(s.balon).toBe('düşünüyor…')
 })
 
 test('düşünürken araziye yürür ve malzeme toplar', async () => {
   const s = ilerle(yeniSahne(160), 10)
-  expect(s.x).toBe(70)
+  expect(s.x).toBe(88)
   expect(ilerle(yeniSahne(160), 60).malzeme > 0).toBe(true)
 })
 
 test('yakındaki canavara döner, büyü atar ve öldürür', async () => {
-  let s = { ...yeniSahne(160), canavarlar: [zombi(85)] }
+  let s = { ...yeniSahne(160), canavarlar: [zombi(103)] }
   s = adim(s)
   expect(s.mermiler.length).toBe(1)
-  expect(s.x).toBe(60)
+  expect(s.x).toBe(78)
   s = ilerle(s, 40)
   expect(s.canavarlar.length).toBe(0)
 })
@@ -31,14 +31,14 @@ test('yakındaki canavara döner, büyü atar ve öldürür', async () => {
 test('uzaktaysa laba ışınlanır, yakınsa yürür', async () => {
   const uzak = olayUygula(yeniSahne(160), eylem('oku', "README.md'yi okuyor"))
   expect(uzak.mod).toBe('oku')
-  expect(uzak.x).toBe(16)
+  expect(uzak.x).toBe(23)
   expect(uzak.isinlanma).toBe(6)
   expect(uzak.balon).toBe("README.md'yi okuyor")
   const yakin = olayUygula({ ...yeniSahne(160), x: 40 }, eylem('oku'))
   expect(yakin.mod).toBe('git')
-  const vardi = ilerle(yakin, 25)
+  const vardi = ilerle(yakin, 18)
   expect(vardi.mod).toBe('oku')
-  expect(vardi.x).toBe(16)
+  expect(vardi.x).toBe(23)
 })
 
 test('balon en az iki saniye kalır, sonra düşünmeye döner', async () => {
@@ -77,8 +77,10 @@ test('şişe taşırken yeni iş gelirse şişe hemen dolaba konur', async () =>
   expect(s.dolap.length).toBe(1)
 })
 
-test('dar bantta şişe yürümeden sayaca eklenir', async () => {
-  const s = olayUygula(olayUygula(yeniSahne(80), eylem('insa', 'x', 'py')), bitti('insa', 'py'))
+test('dar bantta da şişe dolaba konur', async () => {
+  let s = olayUygula(olayUygula(yeniSahne(80), eylem('insa', 'x', 'py')), bitti('insa', 'py'))
+  expect(s.tasinan).toEqual({ renk: 0x5cc85c, parlak: 0 })
+  s = ilerle(s, 40)
   expect(s.dolap.length).toBe(1)
   expect(s.tasinan).toBe(null)
 })
@@ -87,7 +89,7 @@ test('bitti dolabın önünde kutlar, yeni tur düşünmeye döndürür', async 
   let s = olayUygula(olayUygula(yeniSahne(160), eylem('insa', 'x', 'js')), bitti('insa', 'js'))
   s = olayUygula(s, { tip: 'bitti' })
   expect(s.mod).toBe('bitti')
-  expect(s.x).toBe(16)
+  expect(s.x).toBe(23)
   expect(s.balon).toBe('Bitti! 1 iksir hazır')
   expect(olayUygula(s, eylem('oku'))).toBe(s)
   const yeni = olayUygula(s, { tip: 'basla' })
@@ -102,9 +104,9 @@ test('dolapYukle kayıtlı dolabı getirir', async () => {
 })
 
 test('boyut değişince durak yeniden hesaplanır', async () => {
-  const s = olayUygula(olayUygula(yeniSahne(160), eylem('oku')), { tip: 'boyut', genislik: 80 })
+  const s = olayUygula(olayUygula({ ...yeniSahne(160), x: 56 }, eylem('insa', 'x', 'js')), { tip: 'boyut', genislik: 80 })
   expect(s.genislik).toBe(80)
-  expect(s.x).toBe(1)
+  expect(s.x).toBe(23)
   expect(olayUygula(s, { tip: 'boyut', genislik: 80 })).toBe(s)
 })
 

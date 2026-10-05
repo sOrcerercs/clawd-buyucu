@@ -8,7 +8,7 @@ const bitti = (tur: string, uzanti?: string) => ({ tip: 'eylemBitti', tur, uzant
 test('Bash fitili yakar, en az on kare sonra patlar', async () => {
   let s = olayUygula(yeniSahne(160), eylem('tnt', 'npm test patlatıyor'))
   expect(s.mod).toBe('fitil')
-  expect(s.tnt.x >= 61).toBe(true)
+  expect(s.tnt.x >= 79).toBe(true)
   s = olayUygula(s, bitti('tnt'))
   expect(s.tnt.patlaAt).toBe(FITIL_EN_AZ)
   s = ilerle(s, FITIL_EN_AZ - 1)

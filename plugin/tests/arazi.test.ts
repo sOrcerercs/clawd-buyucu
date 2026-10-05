@@ -2,9 +2,9 @@ import { expect, test } from 'claude-code/testing'
 import { alan, araziUret, bitkiYenile, bloklarYenile, BITKI_ARALIK, BLOK_GEN } from '../hooks/arazi.js'
 
 test('alan labın bittiği yerden başlar', async () => {
-  expect(alan(120)).toEqual({ bas: 60, son: 112 })
-  expect(alan(80)).toEqual({ bas: 20, son: 72 })
-  expect(alan(20)).toEqual({ bas: 20, son: 20 })
+  expect(alan(120)).toEqual({ bas: 78, son: 112 })
+  expect(alan(80)).toEqual({ bas: 46, son: 72 })
+  expect(alan(20)).toEqual({ bas: 46, son: 46 })
 })
 
 test('arazi aynı tohumla aynı, farklı tohumla farklı', async () => {

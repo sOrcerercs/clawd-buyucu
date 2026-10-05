@@ -10,8 +10,8 @@ test('canavar aralık karesinde, sağ kenarda doğar', async () => {
   expect(Object.keys(CANAVAR).includes(c.tur)).toBe(true)
   expect(c.can).toBe(CANAVAR[c.tur].can)
   expect(canavarDogur([zombi(100), zombi(120)], 160, DOGUM_ARALIK, 7)).toBe(null)
-  expect(canavarDogur([], 80, DOGUM_ARALIK, 7)).not.toBe(null)
-  expect(canavarDogur([], 40, DOGUM_ARALIK, 7)).toBe(null)
+  expect(canavarDogur([], 120, DOGUM_ARALIK, 7)).not.toBe(null)
+  expect(canavarDogur([], 80, DOGUM_ARALIK, 7)).toBe(null)
 })
 
 test('canavar hedefe yürür, yakına gelince durur, durgunken kımıldamaz', async () => {
