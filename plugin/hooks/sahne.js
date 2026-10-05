@@ -35,7 +35,7 @@ export function yeniSahne(genislik = 120, tohum = 7) {
     x: labYerlesimi(genislik).son + 1, zy: 0, vy: 0, yon: 1,
     hedef: null, isinlanma: 0,
     balon: DUSUNUYOR, balonKare: 0, dusunAt: null,
-    tasinan: null, dolap: [], iksirSayisi: 0, buTur: 0,
+    tasinan: null, dolap: [], iksirSayisi: 0, buTur: 0, sonSiseKare: -1000,
     malzeme: 0, bekleyen: 0, kazanRengi: null,
     canavarlar: [], mermiler: [], parca: [], esyalar, bloklar,
     ciraklar: [], sonrakiId: 1, atesBekleme: 0,
@@ -113,14 +113,13 @@ function isinla(s, x, mod) {
 
 function dolabaBirak(s) {
   if (!s.tasinan) return s
-  return { ...s, tasinan: null, dolap: dolabaEkle(s.dolap, s.tasinan), iksirSayisi: s.iksirSayisi + 1, buTur: s.buTur + 1 }
+  return { ...s, tasinan: null, dolap: dolabaEkle(s.dolap, s.tasinan), iksirSayisi: s.iksirSayisi + 1, buTur: s.buTur + 1, sonSiseKare: s.kare }
 }
 
 function siseDoldur(s, uzanti) {
   const t = { ...dolabaBirak(s), bekleyen: 0, kazanRengi: null }
   const sise = yeniSise(uzanti, s.bekleyen)
   const lab = labYerlesimi(s.genislik)
-  if (lab.dolapX === null) return dolabaBirak({ ...t, tasinan: sise })
   const parca = parcaSac(t.parca, t.kare, lab.kazanX + 4, YER - 5, () => sise.renk, 5, 0.7)
   return labaGit({ ...t, tasinan: sise, parca }, 'dolap')
 }
@@ -256,23 +255,24 @@ function gitAdim(s) {
 function okuAdim(s) {
   if (s.modKare % 4 !== 0) return s
   const lab = labYerlesimi(s.genislik)
-  const x = lab.kursuX === null ? lab.kazanX + 4 : lab.kursuX + 2
-  return { ...s, parca: yukselen(s.parca, s.kare, x, YER - 7, RENK.sayfa) }
+  // Dar bantta kürsü yok: dolaptaki tariflere bakar
+  const [x, y] = lab.kursuX === null ? [lab.dolapX + 10, YER - 9] : [lab.kursuX + 3, YER - 8]
+  return { ...s, parca: yukselen(s.parca, s.kare, x, y, RENK.sayfa) }
 }
 
 function insaAdim(s) {
   const aralik = s.ciraklar.some((c) => c.durum === 'aktif') ? 3 : 5
   if (s.modKare % aralik !== 0) return s
   const lab = labYerlesimi(s.genislik)
-  return { ...s, parca: yukselen(s.parca, s.kare, lab.kazanX + 2 + (s.kare % 5), YER - 5, s.kazanRengi ?? RENK.iksir) }
+  const renk = s.modKare % (aralik * 2) === 0 ? RENK.buhar : (s.kazanRengi ?? RENK.iksir)
+  return { ...s, parca: yukselen(s.parca, s.kare, lab.kazanX + 3 + (s.kare % 5), YER - 6, renk) }
 }
 
 function dolapAdim(s) {
   if (s.modKare === 4 && s.tasinan) {
     const lab = labYerlesimi(s.genislik)
     const t = dolabaBirak(s)
-    const x = lab.dolapX === null ? s.x + 3 : lab.dolapX + 7
-    return { ...t, parca: parcaSac(t.parca, t.kare, x, 7, () => RENK.yildiz, 6, 0.6) }
+    return { ...t, parca: parcaSac(t.parca, t.kare, lab.dolapX + 10, 7, () => RENK.yildiz, 6, 0.6) }
   }
   if (s.modKare >= 8) return { ...s, mod: 'dusun', modKare: 0 }
   return s
@@ -387,6 +387,13 @@ function sapkaAdim(s) {
   return { ...s, sapka: { ...h, x: h.x + h.vx + (s.x - h.x) * 0.1, zy, vy } }
 }
 
+// Taşınan şişenin arkasından parıltı düşer
+function siseParilti(s) {
+  if (!s.tasinan || s.kare % 3 !== 0) return s
+  const x = s.yon > 0 ? s.x + 6 : s.x
+  return { ...s, parca: yukselen(s.parca, s.kare, x, YER - 6, RENK.yildiz) }
+}
+
 function esyaTopla(s) {
   if (s.zy > 0) return s
   const { esyalar, toplanan } = topla(s.esyalar, s.x, CLAWD_GEN)
@@ -420,7 +427,7 @@ export function adim(s) {
   const oynuyor = hazir.oyuncu > 0 && OYNANIR.has(hazir.mod)
   let t = oynuyor ? oyuncuAdim(hazir) : (MOD_ADIMI[hazir.mod] ?? dusunAdim)(hazir)
   t = ciraklarAdim(canavarlarAdim(t))
-  t = sapkaAdim(yerCekimi(t))
+  t = siseParilti(sapkaAdim(yerCekimi(t)))
   if (t.mod === 'dusun') t = esyaTopla(t)
   return balonZamani(t)
 }

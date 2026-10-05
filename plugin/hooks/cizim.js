@@ -3,7 +3,7 @@
 
 import { RENK, SPRITE, beyazPalet } from './sprite.js'
 import { DUNYA_YUK, YER, zar } from './fizik.js'
-import { CLAWD_GEN, labYerlesimi, gorunenSiseler, sisePikseli, asaUcuX } from './lab.js'
+import { CLAWD_GEN, labYerlesimi, gorunenSiseler, sisePikseli, asaUcuX, dolabaEkle } from './lab.js'
 import { alan } from './arazi.js'
 
 export const VARSAYILAN = 0x01000000
@@ -11,10 +11,18 @@ const UST_YARIM = 0x2580
 const ALT_YARIM = 0x2584
 const BOSLUK = 0x20
 const GORUNEN_CIRAK = 4
+const SAHNE_ALTI = 16 // çimenin altı (yeraltı) bant kısalınca ilk kırpılan yer
+const YENI_SISE_KARE = 33 // yeni konan şişe ~3 sn yanıp söner
+export const BALON_SATIR = 8 // bundan kısa bantta balon sahnenin dışında yazılır
 
-// Bant 20 pikselden kısaysa dünyanın üstü kırpılır (ust); y değerleri dünya koordinatında
+// Bant kısaysa önce yeraltı, sonra gökyüzü kırpılır; dönen değer görünen ilk dünya satırı
+export function gorunurPencere(yuk) {
+  return Math.max(0, Math.min(DUNYA_YUK, Math.max(SAHNE_ALTI, yuk)) - yuk)
+}
+
+// y değerleri dünya koordinatında; ust görünen ilk satır
 function tuval(gen, yuk) {
-  return { gen, yuk, ust: Math.max(0, DUNYA_YUK - yuk), p: new Int32Array(gen * yuk).fill(-1) }
+  return { gen, yuk, ust: gorunurPencere(yuk), p: new Int32Array(gen * yuk).fill(-1) }
 }
 
 function nokta(t, x, y, renk) {
@@ -33,16 +41,32 @@ function cizgi(t, x0, y0, x1, y1, renk) {
   for (let i = 0; i <= adim; i++) nokta(t, x0 + ((x1 - x0) * i) / adim, y0 + ((y1 - y0) * i) / adim, renk)
 }
 
-function spriteCiz(t, sp, x, y, aynala = false, ozel = {}) {
+function spriteCiz(t, sp, x, y, aynala = false, ozel = {}, donustur = null) {
   for (let j = 0; j < sp.yuk; j++) {
     const satir = sp.satirlar[j]
     for (let i = 0; i < sp.gen; i++) {
       const harf = satir[aynala ? sp.gen - 1 - i : i]
       if (harf === '.') continue
       const renk = ozel[harf] ?? sp.palet[harf]
-      if (renk !== undefined) nokta(t, x + i, y + j, renk)
+      if (renk !== undefined) nokta(t, x + i, y + j, donustur ? donustur(renk) : renk)
     }
   }
+}
+
+// Sprite'ın boş komşu piksellerine ince bir hale çizer
+function haleCiz(t, sp, x, y, renk) {
+  const dolu = (i, j) => i >= 0 && j >= 0 && i < sp.gen && j < sp.yuk && sp.satirlar[j][i] !== '.'
+  for (let j = -1; j <= sp.yuk; j++) {
+    for (let i = -1; i <= sp.gen; i++) {
+      if (dolu(i, j)) continue
+      if (dolu(i - 1, j) || dolu(i + 1, j) || dolu(i, j - 1) || dolu(i, j + 1)) nokta(t, x + i, y + j, renk)
+    }
+  }
+}
+
+function karistir(renk, hedef, oran) {
+  const kanal = (k) => Math.round(((renk >> k) & 255) * (1 - oran) + ((hedef >> k) & 255) * oran)
+  return (kanal(16) << 16) | (kanal(8) << 8) | kanal(0)
 }
 
 export function acikla(renk, oran) {
@@ -71,32 +95,62 @@ function zeminCiz(t, lab) {
 }
 
 // ---- Lab ----
-function dolapCiz(t, s, lab) {
+// Kullanılan eşya; dar bantta okuma ve web dolabın önünde yapılır
+function aktifEsya(s, lab) {
+  if (s.mod === 'oku') return lab.kursuX === null ? 'dolap' : 'kursu'
+  if (s.mod === 'web') return lab.kureX === null ? 'dolap' : 'kure'
+  if (s.mod === 'insa') return 'kazan'
+  if (s.mod === 'dolap' || s.mod === 'bitti') return 'dolap'
+  return null
+}
+
+function dolapCiz(t, s, lab, sonuk, hale) {
   const x0 = lab.dolapX
-  dikdortgen(t, x0, 1, lab.dolapGen, 13, RENK.duvarKoyu)
-  for (const y of [1, 5, 9, 13]) dikdortgen(t, x0, y, lab.dolapGen, 1, RENK.tahta)
-  dikdortgen(t, x0, 1, 1, 13, RENK.tahtaKoyu)
-  dikdortgen(t, x0 + lab.dolapGen - 1, 1, 1, 13, RENK.tahtaKoyu)
+  const gen = lab.dolapGen
+  const ahsap = (renk) => (sonuk ? karistir(renk, RENK.duvar, 0.45) : renk)
+  if (hale) {
+    for (let x = x0 - 1; x <= x0 + gen; x++) nokta(t, x, 2, RENK.hale)
+    for (let y = 2; y <= 13; y++) {
+      nokta(t, x0 - 1, y, RENK.hale)
+      nokta(t, x0 + gen, y, RENK.hale)
+    }
+  }
+  dikdortgen(t, x0, 3, gen, 11, RENK.duvarKoyu)
+  for (const y of [3, 8, 13]) dikdortgen(t, x0, y, gen, 1, ahsap(RENK.tahta))
+  dikdortgen(t, x0, 3, 1, 11, ahsap(RENK.tahtaKoyu))
+  dikdortgen(t, x0 + gen - 1, 3, 1, 11, ahsap(RENK.tahtaKoyu))
   const siseler = gorunenSiseler(s.dolap)
   const yeniBas = siseler.length - Math.min(s.buTur, siseler.length)
   const yeniSayisi = siseler.length - yeniBas
+  const yeniden = s.kare - s.sonSiseKare
   siseler.forEach((sise, i) => {
     const { x, y } = sisePikseli(lab, i)
-    // Bitti'de bu turda eklenen şişeler sırayla parlar
+    const son = i === siseler.length - 1
+    // Bitti'de bu turun şişeleri sırayla parlar; yeni konan şişe ~3 sn yanıp söner
     const parliyor = s.mod === 'bitti' && i >= yeniBas && Math.floor(s.modKare / 3) % Math.max(1, yeniSayisi) === i - yeniBas
-    spriteCiz(t, SPRITE.sise, x, y, false, { L: parliyor ? RENK.beyaz : acikla(sise.renk, sise.parlak * 0.12) })
-    if (sise.parlak >= 3 && (Math.floor(s.kare / 4) + i) % 4 === 0) nokta(t, x + 2, y, RENK.beyaz)
+    const yanip = son && yeniden >= 0 && yeniden < YENI_SISE_KARE && yeniden % 4 < 2
+    spriteCiz(t, SPRITE.sise, x, y, false, { L: parliyor || yanip ? RENK.beyaz : acikla(sise.renk, sise.parlak * 0.12) })
+    if (sise.parlak >= 3 && (Math.floor(s.kare / 4) + i) % 4 === 0) nokta(t, x + 2, y + 1, RENK.beyaz)
+    if (son) nokta(t, x + 1, y - 1, RENK.yildiz) // son eklenen şişenin yıldızı
   })
 }
 
 function labCiz(t, s, lab) {
-  if (lab.dolapX !== null) dolapCiz(t, s, lab)
-  if (lab.kursuX !== null) spriteCiz(t, s.mod === 'oku' && s.kare % 12 < 6 ? SPRITE.kursu2 : SPRITE.kursu, lab.kursuX, YER - 6)
+  const aktif = aktifEsya(s, lab)
+  const hale = s.kare % 6 < 3
+  const sonukMu = (ad) => aktif !== null && aktif !== ad
+  const sonuk = (renk) => karistir(renk, RENK.duvar, 0.45)
+  const esya = (ad, sp, x, y, ozel) => {
+    if (aktif === ad && hale) haleCiz(t, sp, x, y, RENK.hale)
+    spriteCiz(t, sp, x, y, false, ozel, sonukMu(ad) ? sonuk : null)
+  }
+  dolapCiz(t, s, lab, sonukMu('dolap'), aktif === 'dolap' && hale)
+  if (lab.kursuX !== null) esya('kursu', s.mod === 'oku' && s.kare % 12 < 6 ? SPRITE.kursu2 : SPRITE.kursu, lab.kursuX, YER - 7, {})
   if (lab.kureX !== null) {
     const ic = s.mod === 'web' ? [RENK.beyaz, RENK.kureIc, RENK.portalAcik][Math.floor(s.kare / 3) % 3] : RENK.kureIc
-    spriteCiz(t, SPRITE.kure, lab.kureX, YER - 5, false, { C: ic })
+    esya('kure', SPRITE.kure, lab.kureX, YER - 7, { C: ic })
   }
-  spriteCiz(t, SPRITE.kazan, lab.kazanX, YER - 5, false, { L: s.kazanRengi ?? RENK.iksir })
+  esya('kazan', SPRITE.kazan, lab.kazanX, YER - 6, { L: s.kazanRengi ?? RENK.iksir, F: s.kare % 4 < 2 ? RENK.alev : RENK.kivilcim })
 }
 
 // ---- Varlıklar ----
@@ -128,6 +182,7 @@ function clawdCiz(t, s) {
   spriteCiz(t, SPRITE.clawd, x, ust, ayna)
   spriteCiz(t, Math.floor(x / 2) % 2 ? SPRITE.ayakB : SPRITE.ayakA, x, ust + 5, ayna)
   if (!s.sapka) spriteCiz(t, SPRITE.sapka, x - 1, ust - 4, ayna)
+  if (s.tasinan) return siseTasi(t, s, x, ust, ayna)
   const asaX = asaUcuX(s)
   if (s.mod === 'insa') {
     const uc = asaX + s.yon * (3 + (Math.floor(s.kare / 3) % 4)) // kazanı karıştırır
@@ -139,11 +194,23 @@ function clawdCiz(t, s) {
     cizgi(t, asaX, tepe + 1, asaX, ust + 5 - (kalkik ? 2 : 0), RENK.asa)
     nokta(t, asaX, tepe, s.kare % 16 < 8 ? RENK.portalAcik : RENK.kure)
   }
-  if (s.tasinan) spriteCiz(t, SPRITE.sise, ayna ? x - 3 : x + 4, ust + 2, false, { L: s.tasinan.renk })
   if (s.mod === 'fitil' && s.modKare >= 4) {
     const kx = s.yon > 0 ? x + CLAWD_GEN + 1 : x - 2
     for (let y = ust - 1; y <= ust + 5; y++) nokta(t, kx, y, (y + s.kare) % 2 ? RENK.portalAcik : RENK.kure)
   }
+}
+
+// Clawd şişeyi önünde taşır (asası yok); dolapta elinden rafındaki yerine uçar
+function siseTasi(t, s, x, ust, ayna) {
+  const el = { x: ayna ? x - 1 : x + 5, y: ust + 1 }
+  let konum = el
+  if (s.mod === 'dolap' && s.modKare >= 1) {
+    const lab = labYerlesimi(s.genislik)
+    const yer = sisePikseli(lab, gorunenSiseler(dolabaEkle(s.dolap, s.tasinan)).length - 1)
+    const oran = Math.min(1, s.modKare / 4)
+    konum = { x: el.x + (yer.x - el.x) * oran, y: el.y + (yer.y - el.y) * oran }
+  }
+  spriteCiz(t, SPRITE.sise, konum.x, konum.y, false, { L: s.tasinan.renk })
 }
 
 function patlamaCiz(t, p) {
@@ -201,9 +268,10 @@ export function sahneHucreleri(s, sutun, satir) {
   if (s.patlama) patlamaCiz(t, s.patlama)
   for (const p of s.parca) nokta(t, p.x, p.y, p.renk)
   const merkez = Math.round(s.x + CLAWD_GEN / 2)
-  if (t.yuk > 2 && merkez >= 0 && merkez < sutun) t.p[2 * sutun + merkez] = RENK.balon // balon kuyruğu
+  const balonVar = satir >= BALON_SATIR
+  if (balonVar && merkez >= 0 && merkez < sutun) t.p[2 * sutun + merkez] = RENK.balon // balon kuyruğu
   const hucreler = pikselden(t)
-  balonYaz(hucreler, s.balon, merkez, sutun)
+  if (balonVar) balonYaz(hucreler, s.balon, merkez, sutun)
   return hucreler
 }
 

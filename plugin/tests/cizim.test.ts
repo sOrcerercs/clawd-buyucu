@@ -1,5 +1,8 @@
 import { expect, test } from 'claude-code/testing'
-import { sahneHucreleri, base64, acikla } from '../hooks/cizim.js'
+import { sahneHucreleri, base64, acikla, gorunurPencere, BALON_SATIR } from '../hooks/cizim.js'
+import { RENK } from '../hooks/sprite.js'
+import { labYerlesimi, sisePikseli } from '../hooks/lab.js'
+import { YER } from '../hooks/fizik.js'
 import { yeniSahne, olayUygula, adim } from '../hooks/sahne.js'
 
 const ilerle = (s: any, n: number) => { for (let i = 0; i < n; i++) s = adim(s); return s }
@@ -68,4 +71,63 @@ test('base64 hücre baytlarını taşır', async () => {
 test('acikla rengi beyaza doğru açar', async () => {
   expect(acikla(0x000000, 0.5)).toBe(0x808080)
   expect(acikla(0x123456, 0)).toBe(0x123456)
+})
+
+// Dünya koordinatındaki (x, y) pikselinin rengi; bant dışında kalıyorsa null
+function piksel(h: Uint32Array, sutun: number, satir: number, x: number, y: number) {
+  const cy = y - gorunurPencere(satir * 2)
+  if (cy < 0 || cy >= satir * 2) return null
+  const i = ((cy >> 1) * sutun + x) * 3
+  const ust = cy % 2 === 0
+  if (h[i] === 0x2580) return ust ? h[i + 1] : h[i + 2]
+  if (h[i] === 0x2584) return ust ? h[i + 2] : h[i + 1]
+  return h[i + 2]
+}
+
+test('kırpma önce yeraltından başlar', async () => {
+  expect(gorunurPencere(20)).toBe(0)
+  expect(gorunurPencere(16)).toBe(0)
+  expect(gorunurPencere(12)).toBe(4)
+})
+
+test('6 satırlık bantta şapka görünür, balon sahneyi örtmez', async () => {
+  const s = yeniSahne(120)
+  const h = sahneHucreleri(s, 120, 6)
+  expect(piksel(h, 120, 6, s.x + 3, YER - 10)).toBe(RENK.mor)
+  const ust = Array.from({ length: 120 }, (_, c) => h[c * 3])
+  expect(ust.every((k) => [0x20, 0x2580, 0x2584].includes(k))).toBe(true)
+  expect(BALON_SATIR).toBe(8)
+  expect(satirMetni(sahneHucreleri(s, 120, 8), 120, 0).includes('düşünüyor…')).toBe(true)
+})
+
+test('kullanılan eşya parlar, diğerleri sönükleşir', async () => {
+  const lab = labYerlesimi(120)
+  const oku = { ...olayUygula(yeniSahne(120), { tip: 'eylem', tur: 'oku', metin: 'x' }), kare: 0 }
+  const h = sahneHucreleri(oku, 120, 10)
+  expect(piksel(h, 120, 10, lab.kursuX + 1, YER - 8)).toBe(RENK.hale)
+  expect(piksel(h, 120, 10, lab.kazanX, YER - 6) === RENK.kazanAgiz).toBe(false)
+  const bos = sahneHucreleri({ ...yeniSahne(120), kare: 0 }, 120, 10)
+  expect(piksel(bos, 120, 10, lab.kazanX, YER - 6)).toBe(RENK.kazanAgiz)
+  expect(piksel(bos, 120, 10, lab.kursuX + 1, YER - 8) === RENK.hale).toBe(false)
+})
+
+test('kazanın altında ateş yanar', async () => {
+  const lab = labYerlesimi(120)
+  const renk = piksel(sahneHucreleri(yeniSahne(120), 120, 10), 120, 10, lab.kazanX + 4, YER - 1)
+  expect([RENK.alev, RENK.kivilcim].includes(renk)).toBe(true)
+})
+
+test('taşınan şişe Clawd\'un önünde çizilir', async () => {
+  const s = { ...yeniSahne(160), tasinan: { renk: 0x4f8fe8, parlak: 0 }, yon: 1 }
+  expect(piksel(sahneHucreleri(s, 160, 10), 160, 10, s.x + 6, YER - 4)).toBe(0x4f8fe8)
+})
+
+test('yeni konan şişe yanıp söner, sonra yıldızla işaretli kalır', async () => {
+  const lab = labYerlesimi(120)
+  const { x, y } = sisePikseli(lab, 0)
+  const s = { ...yeniSahne(120), dolap: [{ renk: 0x4f8fe8, parlak: 0 }], sonSiseKare: 100, kare: 100 }
+  expect(piksel(sahneHucreleri(s, 120, 10), 120, 10, x + 1, y + 3)).toBe(RENK.beyaz)
+  const sonra = sahneHucreleri({ ...s, kare: 200 }, 120, 10)
+  expect(piksel(sonra, 120, 10, x + 1, y + 3)).toBe(0x4f8fe8)
+  expect(piksel(sonra, 120, 10, x + 1, y - 1)).toBe(RENK.yildiz)
 })

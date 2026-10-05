@@ -205,3 +205,34 @@ test('hata döndüren araç creeper getirir', async ($, on) => {
   expect(await ui.find({ type: 'Text', text: /Eyvah, büyü tutmadı!/ })).toBeDefined()
   await ui.unmount()
 })
+
+const bantBoyu = (maxRows: number) => ({ ...BANT, props: { ...BANT.props, maxRows } })
+
+test('Raster bandın satır sınırını aşmaz', async ($, on) => {
+  hazirla(on)
+  await oturumAc($)
+  await $.turn.start({ turnId: 't1' })
+  const ui = await $.ui.mount({ ...bantBoyu(9), surface: 'terminal' })
+  expect((await ui.find({ key: 'sahne' })).props.rows).toBe(8)
+  await ui.unmount()
+})
+
+test('kısa bantta balon düğme satırına yazılır', async ($, on) => {
+  hazirla(on)
+  await oturumAc($)
+  await $.turn.start({ turnId: 't1' })
+  const ui = await $.ui.mount({ ...bantBoyu(7), surface: 'terminal' })
+  expect((await ui.find({ key: 'sahne' })).props.rows).toBe(6)
+  expect(await ui.find({ type: 'Text', text: /düşünüyor…/ })).toBeDefined()
+  await ui.unmount()
+})
+
+test('çok kısa bantta sahne yerine tek satır metin', async ($, on) => {
+  hazirla(on)
+  await oturumAc($)
+  await $.turn.start({ turnId: 't1' })
+  const ui = await $.ui.mount({ ...bantBoyu(5), surface: 'terminal' })
+  expect(await ui.find({ key: 'sahne' })).toBeUndefined()
+  expect(await ui.find({ type: 'Text', text: /Clawd: düşünüyor…/ })).toBeDefined()
+  await ui.unmount()
+})

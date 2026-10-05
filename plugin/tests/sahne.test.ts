@@ -125,3 +125,15 @@ test('aynı olaylar aynı sahneyi üretir, diziler sınırlı kalır', async () 
   expect(a.esyalar.length <= 30).toBe(true)
   expect(a.canavarlar.length <= 2).toBe(true)
 })
+
+test('şişe dolaba konduğu kare işaretlenir', async () => {
+  let s = olayUygula(olayUygula(yeniSahne(160), eylem('insa', 'x', 'js')), bitti('insa', 'js'))
+  s = ilerle(s, 4)
+  expect(s.dolap.length).toBe(1)
+  expect(s.sonSiseKare).toBe(s.kare)
+})
+
+test('şişe taşınırken arkasından parıltı düşer', async () => {
+  const s = ilerle({ ...yeniSahne(160), tasinan: { renk: 1, parlak: 0 } }, 6)
+  expect(s.parca.some((p: any) => p.hafif && p.renk === 0xf5d76e)).toBe(true)
+})

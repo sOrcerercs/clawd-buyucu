@@ -10,16 +10,17 @@ const iskelet = (x) => ({ tur: 'iskelet', x, zy: 0, vy: 0, can: 2, kare: 0, vuru
 
 // [olaylar, kare, sonraki olaylar, sonraki kare, başlangıç ayarı]
 export const SENARYO = {
-  dusun: [[], 5, [], 0, (s) => ({ ...s, x: 70, canavarlar: [zombi(100), iskelet(125)] })],
+  dusun: [[], 5, [], 0, (s) => ({ ...s, x: 90, canavarlar: [zombi(120), iskelet(145)] })],
   oku: [[eylem('oku', "README.md'yi okuyor")], 20],
   insa: [[eylem('insa', "sahne.js'yi karıştırıyor", 'js')], 30],
+  dolap: [[eylem('insa', 'x', 'py'), bitti('insa', 'py')], 2],
   web: [[eylem('web', 'kürede: github.com')], 40],
   fitil: [[eylem('tnt', 'npm test patlatıyor')], 8],
   patlama: [[eylem('tnt', 'npm test patlatıyor')], 12, [bitti('tnt')], 2],
   ajan: [[eylem('ajan', 'çırak: testleri yaz'), eylem('ajan', 'çırak: belge')], 40],
   creeper: [[{ tip: 'hata', tur: 'diger' }], 20],
   bitti: [[eylem('insa', 'x', 'md'), bitti('insa', 'md')], 30, [{ tip: 'bitti' }], 9],
-  oyna: [[{ tip: 'oyuncu', komut: 'buyu' }], 3, [], 0, (s) => ({ ...s, x: 70, canavarlar: [zombi(95)] })],
+  oyna: [[{ tip: 'oyuncu', komut: 'buyu' }], 3, [], 0, (s) => ({ ...s, x: 90, canavarlar: [zombi(115)] })],
 }
 
 export function durumUret(ad, sutun) {

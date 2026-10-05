@@ -29,8 +29,13 @@ referansıdır.
 
 Minecraft estetiği: çimen/toprak/taş arazi, iksir standı, kazan, zombi, iskelet, örümcek, slime, creeper.
 
-Tek şerit. Bandın **sol ucunda sabit lab** (59 piksel ≈ 15 blok; Raster'da 1 sütun = 1 piksel): soldan sağa
-dolap, büyü kitabı kürsüsü, kristal küre, kazan. Lab'ın sağında açık arazi.
+Tek şerit. Bandın **sol ucunda sabit lab** (77 piksel; Raster'da 1 sütun = 1 piksel): soldan sağa
+dolap, açık kitaplı kürsü (7×7), altın ayaklı kristal küre (6×7), altında ateş yanan kazan (11×6).
+Lab'ın sağında açık arazi.
+
+- Clawd eşyanın **solunda** durur; asasının ucu eşyaya bir piksel kala biter, hiçbir eşyayı örtmez.
+- O an kullanılan eşyanın çevresinde yanıp sönen sarı bir hale olur; diğer eşyalar duvar rengine doğru sönükleşir.
+- 110 sütunun altında lab **dolap + kazan**'a iner (45 piksel); okuma ve web dolabın önünde yapılır.
 
 **Lab'a dönüş kuralı:** lab'da geçen bir durum (okuma, inşa, web) geldiğinde Clawd dışarıdaysa:
 lab'a ≤ 8 blok uzaktaysa yürür, daha uzaktaysa mor parçacıklarla lab'a ışınlanır.
@@ -64,7 +69,9 @@ Diğer kurallar:
   `.css/.html` pembe, diğerleri mor. Tam tablo `lab.js`'de.
 - **Malzeme:** düşünürken toplanan her malzeme bir sonraki şişenin parlaklığını artırır (sayaç sıfırlanır);
   yeterince malzemeyle dolan şişe parıldar.
-- **Dolap:** sabit raf kapasitesi; dolunca en eski raf kayar, sayaç artmaya devam eder.
+- **Dolap:** 2 raf × 5 şişe (şişe 3×4: mantar, boyun, parıltılı gövde); dolunca en eski raf kayar, sayaç artmaya devam eder.
+- **Yeni şişe:** Clawd şişeyi önünde taşır (asası yok, arkasından parıltı düşer); dolapta şişe elinden rafındaki
+  yerine uçar, ~3 sn yanıp söner; son eklenen şişenin üstünde küçük bir yıldız kalır.
 - **Kalıcılık:** `$.store`'da toplam iksir sayısı ve son 24 şişenin rengi saklanır; dolap oturumlar
   arasında dolmaya devam eder. Oyuncunun 5 tuşuyla içtiği şişe hem dolaptan hem sayaçtan düşer.
 - **Spinner eki:** `· ⚗ 7 iksir · ✦ 12` (iksir sayısı · bu oturumda toplanan malzeme). İkisi de
@@ -120,8 +127,9 @@ canavarlar, mermiler, parçacıklar, çıraklar, TNT, oyuncu kontrol süresi, de
 ## Hata ve uç durumlar
 
 - `blit` reddedilir/hata verirse `$.ui.invalidate('ui.render')`.
-- Bant 90 sütundan darsa lab yalnız kazana iner; dolap, kürsü ve küre gizlenir, şişe doğrudan sayaca eklenir,
-  sayaç spinner'da kalır.
+- Bant kısaysa önce yeraltı (toprak/taş), sonra gökyüzü kırpılır; 8 satırda sahne tam görünür.
+- 8 satırdan kısa bantta balon sahnede değil, düğme satırının yanında yazı olarak durur (Clawd'u örtmesin).
+- Raster en fazla `maxRows - 1` satırdır; 5 satırdan kısa bantta sahne yerine tek satır metin gösterilir.
 - Desktop (Raster yok): `🧙 Clawd: <balon> · ⚗ <n>` tek satır.
 - Üst üste turlar: kapanış zamanlayıcısı iptal edilir.
 - Store okunamazsa dolap boş başlar, mod açık varsayılır.

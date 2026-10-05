@@ -35,6 +35,10 @@ arazi tohumlu ve deterministiktir.
 
 ![İnşa](ekran/insa.png)
 
+**İksir dolaba:** şişe Clawd'un elinden rafına uçar
+
+![Dolap](ekran/dolap.png)
+
 **Bash:** fitil ve patlama
 
 ![TNT fitili](ekran/fitil.png)
@@ -56,10 +60,12 @@ arazi tohumlu ve deterministiktir.
 
 - **Şişe renkleri** dosya türünden gelir: `.js`/`.ts` sarı, `.md` mavi, `.py` yeşil, `.json` turuncu, `.css`/`.html` pembe, diğerleri mor.
 - **Malzeme:** düşünürken toplananlar bir sonraki şişeyi parlatır; yeterince malzemeyle dolan şişe rafta pırıldar.
+- **Kullanılan eşya parlar:** kürsü, küre ya da kazan kullanılırken çevresinde sarı bir hale yanıp söner, diğerleri sönükleşir.
 - **Işınlanma:** Clawd laba 8 bloktan uzaktaysa yürümez, mor parçacıklarla ışınlanır.
 - **Reddedilen araç:** izin vermediğin bir çağrı ceza sayılmaz; iksir oluşmaz, TNT patlamadan söner.
 - **Sayaç:** spinner'ın yanında görünür, `· ⚗ 7 iksir · ✦ 12`.
-- **Dar terminal:** bant 90 sütundan darsa lab yalnız kazana iner. Desktop'ta sahne yerine tek satır metin gösterilir.
+- **Dolap:** 2 raf × 5 şişe görünür; yeni şişe Clawd'un elinden rafına uçar, birkaç saniye yanıp söner ve üstünde yıldızla işaretli kalır.
+- **Dar terminal:** bant 110 sütundan darsa lab dolap ve kazana iner. Kısa bantta önce yeraltı kırpılır, balon düğme satırına geçer; Desktop'ta sahne yerine tek satır metin gösterilir.
 
 ## Oyna
 

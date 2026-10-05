@@ -2,13 +2,13 @@
 // $ kullanan tek dosya; sahne, çizim, olay ve lab modülleri saftır.
 
 import { yeniSahne, adim, olayUygula } from './sahne.js'
-import { sahneHucreleri, base64 } from './cizim.js'
+import { sahneHucreleri, base64, BALON_SATIR } from './cizim.js'
 import { eylemOku } from './olay.js'
 import { dolapOku, dolapKaydi } from './lab.js'
 
 const KARE_MS = 90 // ~11 fps
 const SATIR = 10 // 10 satır = 20 piksel
-const EN_AZ_SATIR = 6
+const EN_AZ_SATIR = 5 // bundan kısa bantta sahne yerine tek satır metin
 const KAPANIS_MS = 2000
 const ANAHTAR = 'sahne'
 const ACIK_ANAHTARI = 'acik'
@@ -33,6 +33,7 @@ let kaydediliyor = false
 let kayitliSayi = 0
 let kayitliUzunluk = 0
 let sonEk = ''
+let sonBalon = ''
 
 function olayEkle(olay) {
   sahne = olayUygula(sahne, olay)
@@ -67,8 +68,11 @@ async function kareCiz($) {
   sahne = adim(sahne)
   dolabiKaydet($)
   const ek = sayacEki()
-  if (ek !== sonEk) {
+  // Kısa bantta balon düğme satırında yazı olarak durur; değişince bant yeniden çizilir
+  const balonDegisti = bant && bant.satir < BALON_SATIR && sahne.balon !== sonBalon
+  if (ek !== sonEk || balonDegisti) {
     sonEk = ek
+    sonBalon = sahne.balon
     $.ui.invalidate('ui.render')
   }
   if (!bant || ciziliyor) return
@@ -114,7 +118,12 @@ function bantCiz($, e) {
   const { Box, Text, Raster, Button } = $.ui.resolve(e)
   if (e.surface !== 'terminal') return Text({ wrap: 'truncate', children: [ozet()] })
   const sutun = Math.max(20, Math.min(512, e.props.bodyColumns || 80))
-  const satir = Math.max(EN_AZ_SATIR, Math.min(SATIR, (e.props.maxRows || SATIR + 1) - 1))
+  // Bir satır düğmelere kalır; Raster bandın sınırını aşmaz
+  const satir = Math.min(SATIR, (e.props.maxRows || SATIR + 1) - 1)
+  if (satir < EN_AZ_SATIR) {
+    bant = null
+    return Text({ wrap: 'truncate', children: [ozet()] })
+  }
   bant = { requestId: e.requestId, sutun, satir }
   olayEkle({ tip: 'boyut', genislik: sutun })
   const cells = base64(sahneHucreleri(sahne, sutun, satir))
@@ -125,7 +134,10 @@ function bantCiz($, e) {
   // Raster bandın doğrudan çocuğu: blit onu anahtarıyla bulur
   return Box({
     flexDirection: 'column',
-    children: [Raster({ key: ANAHTAR, columns: sutun, rows: satir, cells }), Box({ flexDirection: 'row', columnGap: 2, children: dugmeler })],
+    children: [
+      Raster({ key: ANAHTAR, columns: sutun, rows: satir, cells }),
+      Box({ flexDirection: 'row', columnGap: 2, children: satir < BALON_SATIR ? [...dugmeler, Text({ wrap: 'truncate', children: [`· ${sahne.balon}`] })] : dugmeler }),
+    ],
   })
 }
 
